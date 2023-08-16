@@ -6,16 +6,15 @@ import javax.swing.* ;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
 
-final public class SearchWindow implements ActionListener {
+final public class SearchWindow {
 
     JFrame frame;
     Container pain;
     GroupLayout layout;
-    JButton searchButton, cancelButton;
-    Map<String, ImmutablePair<JLabel, JButton>> searchFields;
+    JButton searchButton, cancelButton, editSearchArea;
+    JTextArea searchArea;
+    JScrollPane scrollPane;
     ImmutablePair<JCheckBox, JTextField> [] checkBoxes = new ImmutablePair[] {
             new ImmutablePair<>(new JCheckBox("Name"), new JTextField("")),
             new ImmutablePair<>(new JCheckBox("Mana"), new JTextField("")),
@@ -33,13 +32,20 @@ final public class SearchWindow implements ActionListener {
         pain = frame.getContentPane();
         layout = new GroupLayout(pain);
 
-        searchFields = new HashMap<>();
+        searchArea = new JTextArea(20,60);
+        scrollPane = new JScrollPane(searchArea);
+
+        editSearchArea = new JButton("Edit");
+        cancelButton = new JButton("Cancel");
+        searchButton = new JButton("Search");
+
+        initialiseActionListeners();
 
         GroupLayout.ParallelGroup  horizontalParGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
         GroupLayout.SequentialGroup horizontalSeqGroup = layout.createSequentialGroup();
 
         GroupLayout.SequentialGroup verticalSeqGroup = layout.createSequentialGroup();
-        GroupLayout.ParallelGroup  verticalParGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
+        GroupLayout.ParallelGroup  verticalParGroup = layout.createParallelGroup(GroupLayout.Alignment.BASELINE);
 
         for(ImmutablePair<JCheckBox, JTextField> pair: checkBoxes) {
             JCheckBox checkBox = pair.left;
@@ -61,21 +67,6 @@ final public class SearchWindow implements ActionListener {
             textField.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    JLabel searchLabel = new JLabel(textField.getText());
-
-                    JButton fieldButton = new JButton(UIManager.getIcon("InternalFrame.closeIcon"));
-
-                    searchFields.put(checkBox.getName(), new ImmutablePair<>(searchLabel, fieldButton));
-
-                    fieldButton.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            layout.removeLayoutComponent(searchLabel);
-                            layout.removeLayoutComponent(fieldButton);
-                            searchFields.remove(checkBox.getName());
-                            SwingUtilities.updateComponentTreeUI(frame);
-                        }
-                    });
 
                 }
             });
@@ -87,8 +78,15 @@ final public class SearchWindow implements ActionListener {
             verticalSeqGroup.addComponent(checkBox).addComponent(textField);
 
         }
-        layout.setHorizontalGroup(horizontalParGroup);
-        layout.setVerticalGroup(verticalSeqGroup);
+
+
+
+        layout.setHorizontalGroup(layout.createSequentialGroup()
+                .addGroup(horizontalParGroup)
+                .addComponent(searchArea));
+        layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                .addGroup(verticalSeqGroup)
+                .addComponent(searchArea));
 
         frame.setLayout(layout);
         frame.pack();
@@ -96,9 +94,31 @@ final public class SearchWindow implements ActionListener {
         frame.setVisible(true);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    /**
+     *  Used to initialise various action listeners.
+     *  Must be called after initialising each class variable found within this method
+     *  */
+    private void initialiseActionListeners(){
+        editSearchArea.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
     }
 
     private void createHorizontalGroup(){
