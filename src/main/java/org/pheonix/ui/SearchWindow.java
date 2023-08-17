@@ -6,6 +6,8 @@ import javax.swing.* ;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 final public class SearchWindow {
 
@@ -13,7 +15,8 @@ final public class SearchWindow {
     Container pain;
     GroupLayout layout;
     JButton searchButton, cancelButton, editSearchArea;
-    JTextArea searchArea;
+    JTextArea searchCriteriaArea;
+    Map<String, Integer> textAreaLinesMap;
     JScrollPane scrollPane;
     ImmutablePair<JCheckBox, JTextField> [] checkBoxes = new ImmutablePair[] {
             new ImmutablePair<>(new JCheckBox("Name"), new JTextField("")),
@@ -32,8 +35,11 @@ final public class SearchWindow {
         pain = frame.getContentPane();
         layout = new GroupLayout(pain);
 
-        searchArea = new JTextArea(20,60);
-        scrollPane = new JScrollPane(searchArea);
+        searchCriteriaArea = new JTextArea(15,50);
+        searchCriteriaArea.setEditable(false);
+        textAreaLinesMap = new HashMap<>();
+
+        scrollPane = new JScrollPane(searchCriteriaArea);
 
         editSearchArea = new JButton("Edit");
         cancelButton = new JButton("Cancel");
@@ -42,10 +48,7 @@ final public class SearchWindow {
         initialiseActionListeners();
 
         GroupLayout.ParallelGroup  horizontalParGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
-        GroupLayout.SequentialGroup horizontalSeqGroup = layout.createSequentialGroup();
-
         GroupLayout.SequentialGroup verticalSeqGroup = layout.createSequentialGroup();
-        GroupLayout.ParallelGroup  verticalParGroup = layout.createParallelGroup(GroupLayout.Alignment.BASELINE);
 
         for(ImmutablePair<JCheckBox, JTextField> pair: checkBoxes) {
             JCheckBox checkBox = pair.left;
@@ -65,28 +68,41 @@ final public class SearchWindow {
             });
 
             textField.addActionListener(new ActionListener() {
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    String [] text = searchCriteriaArea.getText().split("\\n");
 
+                    if(textAreaLinesMap.containsKey(checkBox.getText())){
+                        int lineNumber = textAreaLinesMap.get(checkBox.getText());
+
+                        text[lineNumber] = text[lineNumber]  + "," + textField.getText();
+
+                        String appendedText = "";
+
+                        for(String line : text){
+                            appendedText += line + "\n";
+                        }
+                        searchCriteriaArea.setText(appendedText);
+                    }else {
+                        textAreaLinesMap.put(checkBox.getText(), text.length-1);
+                        searchCriteriaArea.append(checkBox.getText() + ": " + textField.getText() + "\n");
+                    }
+                    textField.setText("");
                 }
             });
 
             horizontalParGroup.addComponent(checkBox).addComponent(textField);
-            //horizontalSeqGroup.addComponent(textField);
-
-            //verticalParGroup.addComponent(textField);
             verticalSeqGroup.addComponent(checkBox).addComponent(textField);
 
         }
 
-
-
         layout.setHorizontalGroup(layout.createSequentialGroup()
                 .addGroup(horizontalParGroup)
-                .addComponent(searchArea));
+                .addComponent(searchCriteriaArea));
         layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addGroup(verticalSeqGroup)
-                .addComponent(searchArea));
+                .addComponent(searchCriteriaArea));
 
         frame.setLayout(layout);
         frame.pack();
