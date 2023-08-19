@@ -9,13 +9,15 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
-final public class SearchWindow implements ActionListener {
+final public class SearchWindow {
 
     JFrame frame;
-    Container pain;
+    Container pane;
     GroupLayout layout;
-    JButton searchButton, cancelButton;
-    Map<String, ImmutablePair<JLabel, JButton>> searchFields;
+    JButton searchButton, cancelButton, editSearchArea;
+    JTextArea searchCriteriaArea;
+    Map<String, Integer> textAreaLinesMap;
+    JScrollPane scrollPane;
     ImmutablePair<JCheckBox, JTextField> [] checkBoxes = new ImmutablePair[] {
             new ImmutablePair<>(new JCheckBox("Name"), new JTextField("")),
             new ImmutablePair<>(new JCheckBox("Mana"), new JTextField("")),
@@ -30,16 +32,26 @@ final public class SearchWindow implements ActionListener {
 
     public SearchWindow() {
         frame = new JFrame();
-        pain = frame.getContentPane();
-        layout = new GroupLayout(pain);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pane = frame.getContentPane();
+        layout = new GroupLayout(pane);
+        layout.setAutoCreateGaps(true);
+        layout.setAutoCreateContainerGaps(true);
 
-        searchFields = new HashMap<>();
+        searchCriteriaArea = new JTextArea(15,50);
+        searchCriteriaArea.setEditable(false);
+        textAreaLinesMap = new HashMap<>();
+
+        scrollPane = new JScrollPane(searchCriteriaArea);
+
+        editSearchArea = new JButton("Edit");
+        cancelButton = new JButton("Cancel");
+        searchButton = new JButton("Search");
+
+        initialiseActionListeners();
 
         GroupLayout.ParallelGroup  horizontalParGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
-        GroupLayout.SequentialGroup horizontalSeqGroup = layout.createSequentialGroup();
-
         GroupLayout.SequentialGroup verticalSeqGroup = layout.createSequentialGroup();
-        GroupLayout.ParallelGroup  verticalParGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
 
         for(ImmutablePair<JCheckBox, JTextField> pair: checkBoxes) {
             JCheckBox checkBox = pair.left;
@@ -59,36 +71,41 @@ final public class SearchWindow implements ActionListener {
             });
 
             textField.addActionListener(new ActionListener() {
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    JLabel searchLabel = new JLabel(textField.getText());
+                    String [] text = searchCriteriaArea.getText().split("\\n");
 
-                    JButton fieldButton = new JButton(UIManager.getIcon("InternalFrame.closeIcon"));
+                    if(textAreaLinesMap.containsKey(checkBox.getText())){
+                        int lineNumber = textAreaLinesMap.get(checkBox.getText());
 
-                    searchFields.put(checkBox.getName(), new ImmutablePair<>(searchLabel, fieldButton));
+                        text[lineNumber] = text[lineNumber]  + "," + textField.getText();
 
-                    fieldButton.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            layout.removeLayoutComponent(searchLabel);
-                            layout.removeLayoutComponent(fieldButton);
-                            searchFields.remove(checkBox.getName());
-                            SwingUtilities.updateComponentTreeUI(frame);
+                        String appendedText = "";
+
+                        for(String line : text){
+                            appendedText += line + "\n";
                         }
-                    });
-
+                        searchCriteriaArea.setText(appendedText);
+                    }else {
+                        textAreaLinesMap.put(checkBox.getText(), text.length-1);
+                        searchCriteriaArea.append(checkBox.getText() + ": " + textField.getText() + "\n");
+                    }
+                    textField.setText("");
                 }
             });
 
             horizontalParGroup.addComponent(checkBox).addComponent(textField);
-            //horizontalSeqGroup.addComponent(textField);
-
-            //verticalParGroup.addComponent(textField);
             verticalSeqGroup.addComponent(checkBox).addComponent(textField);
 
         }
-        layout.setHorizontalGroup(horizontalParGroup);
-        layout.setVerticalGroup(verticalSeqGroup);
+
+        layout.setHorizontalGroup(layout.createSequentialGroup()
+                .addGroup(horizontalParGroup)
+                .addComponent(searchCriteriaArea));
+        layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                .addGroup(verticalSeqGroup)
+                .addComponent(searchCriteriaArea));
 
         frame.setLayout(layout);
         frame.pack();
@@ -96,95 +113,30 @@ final public class SearchWindow implements ActionListener {
         frame.setVisible(true);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    /**
+     *  Used to initialise various action listeners.
+     *  Must be called after initialising each class variable found within this method
+     *  */
+    private void initialiseActionListeners(){
+        editSearchArea.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
-    }
+            }
+        });
 
-    private void createHorizontalGroup(){
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
+            }
+        });
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
     }
 }
-
-/*public class SearchWindow extends Frame implements ActionListener {
-    //private JFrame frame;
-   *//* private JButton button;
-    private JTextField tf;
-    private JLabel label;*//*
-    private JTextField tf1,tf2,tf3;
-    private JButton b1,b2;
-    private JButton exit;
-
-    public SearchWindow(){
-
-        tf1 = new JTextField();
-        tf1.setBounds(50,50,150,20);
-        tf2 = new JTextField();
-        tf2.setBounds(50,100,150,20);
-        tf3 = new JTextField();
-        tf3.setBounds(50,150,150,20);
-        tf3.setEditable(false);
-        b1 = new JButton("+");
-        b1.setBounds(50,200,50,50);
-        b2 = new JButton("-");
-        b2.setBounds(120,200,50,50);
-        b1.addActionListener(this);
-        b2.addActionListener(this);
-
-        exit = new JButton("Exit");
-        exit.setBounds(50, 300, 50,50);
-
-        add(tf1); add(tf2); add(tf3); add(b1); add(b2);
-        setSize(300,300);
-        setLayout(null);
-        setVisible(true);
-
-        *//*tf = new JTextField();
-        tf.setBounds(50,50,150,20);
-        label = new JLabel();
-        label.setBounds(50,100,250,20);
-        button = new JButton("Find IP");
-        button.setBounds(50,150,95,30);
-        button.addActionListener(this);
-        add(button);
-        add(tf);
-        add(label);
-        setSize(400,400);
-        setLayout(null);
-        setVisible(true);*//*
-
-        *//*frame = new JFrame("Button");
-        button = new JButton(new ImageIcon(getClass().getResource("/Badlands.jpg")));
-
-        button.setBounds(100,100,100,40);
-        frame.add(button);
-        frame.setSize(300,400);
-        frame.setLayout(null);
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);*//*
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String s1 = tf1.getText();
-        String s2 = tf2.getText();
-        int a = Integer.parseInt(s1);
-        int b = Integer.parseInt(s2);
-        int c = 0;
-        if(e.getSource() == b1){
-            c = a + b;
-        }else if(e.getSource() == b2){
-            c = a - b;
-        }
-        String result = String.valueOf(c);
-        tf3.setText(result);
-
-        *//*try {
-            String host = tf.getText();
-            String ip = java.net.InetAddress.getByName(host).getHostAddress();
-            label.setText("IP of " + host + " is: " + ip);
-        } catch (Exception ex){
-            System.out.println(ex);
-        }*//*
-    }
-}*/
