@@ -29,10 +29,11 @@ public class InsertCardWindow {
             new ImmutablePair(new JLabel("Power/Toughness"), new JTextField("")),
             new ImmutablePair(new JLabel("Colour Identity"), new JTextField("")),
             new ImmutablePair(new JLabel("Tags"), new JTextField("")),
-            new ImmutablePair(new JLabel("Lore Text"), new JTextField(""))
+            new ImmutablePair(new JLabel("Lore Text"), new JTextField("")),
+            new ImmutablePair(new JLabel("Image Path"), new JTextField(""))
     };
 
-    public InsertCardWindow(QueryHandler newQueryHandler) {
+    public InsertCardWindow(QueryHandler newQueryHandler, String uri) {
         frame = new JFrame();
         pane = frame.getContentPane();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -50,6 +51,11 @@ public class InsertCardWindow {
         for(ImmutablePair<JLabel, JTextField> pair: insertFields) {
             JLabel label = pair.left;
             JTextField textField = pair.right;
+
+            if(label.getText().equalsIgnoreCase("Image Path")){
+                // Default image location
+                textField.setText(uri.replace("\"",""));
+            }
 
             textField .setSize(100,25);
 
