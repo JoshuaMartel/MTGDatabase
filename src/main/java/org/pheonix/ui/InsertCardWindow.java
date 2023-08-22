@@ -1,7 +1,7 @@
 package org.pheonix.ui;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.pheonix.business.QueryHandler;
+import org.pheonix.database.QueryHandler;
 
 import javax.swing.*;
 import java.awt.*;

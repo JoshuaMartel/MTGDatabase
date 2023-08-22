@@ -1,10 +1,12 @@
 package org.pheonix;
 
 
-import org.pheonix.business.QueryHandler;
+import org.pheonix.database.QueryHandler;
+import org.pheonix.database.DatabaseConnector;
+import org.pheonix.exception.handling.JDBCExceptionHandler;
 import org.pheonix.ui.InsertCardWindow;
-import org.pheonix.ui.SearchWindow;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
 
@@ -16,9 +18,16 @@ public class Main {
         Properties config = readConfigFile.readConfigFile();
 
         System.out.println(config.values());
-
+        DatabaseConnector dsCon = new DatabaseConnector();
         //new SearchWindow();
-        QueryHandler queryHandler = new QueryHandler();
-        new InsertCardWindow(queryHandler,config.getProperty("imageFolderUri"));
+        QueryHandler queryHandler;
+        JDBCExceptionHandler exceptionHandler = new JDBCExceptionHandler();
+        try{
+            queryHandler = new QueryHandler(dsCon.getDataSource(config));
+            new InsertCardWindow(queryHandler,config.getProperty("imageFolderUri"));
+        }catch (SQLException e){
+            exceptionHandler.printSQLException(e);
+        }
+
     }
 }
