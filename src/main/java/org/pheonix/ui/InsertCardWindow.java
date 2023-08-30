@@ -1,7 +1,7 @@
 package org.pheonix.ui;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.pheonix.database.QueryHandler;
+import org.pheonix.business.BusinessLogic;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +15,7 @@ public class InsertCardWindow {
     GroupLayout layout;
     JComboBox tagsComboBox;
     JButton cancelButton, insertButton;
-    QueryHandler queryHandler;
+    BusinessLogic logic;
     Vector<String> tags;
 
     ImmutablePair<JLabel, JTextField> [] insertFields = new ImmutablePair[]{
@@ -33,15 +33,15 @@ public class InsertCardWindow {
             new ImmutablePair(new JLabel("Image Path"), new JTextField(""))
     };
 
-    public InsertCardWindow(QueryHandler newQueryHandler, String uri) {
+    public InsertCardWindow(BusinessLogic businessLogic, String uri) {
         frame = new JFrame();
         pane = frame.getContentPane();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         layout = new GroupLayout(pane);
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
-        queryHandler = newQueryHandler;
-        tags = queryHandler.getTags();
+        logic = businessLogic;
+        tags = logic.getTags();
 
         tagsComboBox = new JComboBox(tags);
 
@@ -79,8 +79,9 @@ public class InsertCardWindow {
         layout.setVerticalGroup(verticalSeqGroup);
 
         frame.setLayout(layout);
-        frame.pack();
         frame.setSize(new Dimension(800, 600));
+        frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 }

@@ -18,6 +18,7 @@ public class Card {
     Vector<String> tags;
     String loreText;
     String imageURI;
+    Vector<String> decks;
 
     public String getName() {
         return name;
@@ -64,7 +65,9 @@ public class Card {
     public String getImageURI() {
         return imageURI;
     }
-
+    public Vector<String> getDecks() {
+        return decks;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -111,5 +114,7 @@ public class Card {
     public void setImageURI(String imageURI) {
         this.imageURI = imageURI;
     }
-
+    public void setDecks(Vector<String> decks) {
+        this.decks = decks;
+    }
 }

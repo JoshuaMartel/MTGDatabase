@@ -1,4 +1,4 @@
-package org.pheonix.exception.handling;
+package org.pheonix.exception;
 
 import java.sql.SQLException;
 

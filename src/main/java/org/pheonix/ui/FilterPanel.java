@@ -2,22 +2,21 @@ package org.pheonix.ui;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import javax.swing.* ;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
-final public class SearchWindow {
-    JFrame frame;
-    Container pane;
+public class FilterPanel extends JPanel {
+    JFrame parentFrame;
     GroupLayout layout;
     JButton searchButton, cancelButton, editSearchArea;
     JTextArea searchCriteriaArea;
     Map<String, Integer> textAreaLinesMap;
     JScrollPane scrollPane;
-    ImmutablePair<JCheckBox, JTextField> [] checkBoxes = new ImmutablePair[] {
+    ImmutablePair<JCheckBox, JTextField>[] checkBoxes = new ImmutablePair[] {
             new ImmutablePair<>(new JCheckBox("Name"), new JTextField("")),
             new ImmutablePair<>(new JCheckBox("Mana"), new JTextField("")),
             new ImmutablePair<>(new JCheckBox("Card Type"), new JTextField("")),
@@ -29,11 +28,9 @@ final public class SearchWindow {
             new ImmutablePair<>(new JCheckBox("Colours"), new JTextField("")),
     };
 
-    public SearchWindow() {
-        frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        pane = frame.getContentPane();
-        layout = new GroupLayout(pane);
+    public FilterPanel(JFrame frame) {
+        parentFrame = frame;
+        layout = new GroupLayout(this);
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
 
@@ -49,7 +46,7 @@ final public class SearchWindow {
 
         initialiseActionListeners();
 
-        GroupLayout.ParallelGroup  horizontalParGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
+        GroupLayout.ParallelGroup horizontalParGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING);
         GroupLayout.SequentialGroup verticalSeqGroup = layout.createSequentialGroup();
 
         for(ImmutablePair<JCheckBox, JTextField> pair: checkBoxes) {
@@ -60,39 +57,33 @@ final public class SearchWindow {
             textField.setSize(100,30);
             textField.setMaximumSize(new Dimension(100,30));
 
-            checkBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    textField.setEnabled(checkBox.isSelected());
-                    textField.setVisible(checkBox.isSelected());
-                    SwingUtilities.updateComponentTreeUI(frame); // updates frame
-                }
+            checkBox.addActionListener(e -> {
+                textField.setEnabled(checkBox.isSelected());
+                textField.setVisible(checkBox.isSelected());
+                SwingUtilities.updateComponentTreeUI(parentFrame); // updates frame
             });
 
-            textField.addActionListener(new ActionListener() {
+            textField.addActionListener(e -> {
+                String [] text = searchCriteriaArea.getText().split("\\n");
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String [] text = searchCriteriaArea.getText().split("\\n");
+                if(textAreaLinesMap.containsKey(checkBox.getText())){
+                    int lineNumber = textAreaLinesMap.get(checkBox.getText());
 
-                    if(textAreaLinesMap.containsKey(checkBox.getText())){
-                        int lineNumber = textAreaLinesMap.get(checkBox.getText());
+                    text[lineNumber] = text[lineNumber]  + "," + textField.getText();
 
-                        text[lineNumber] = text[lineNumber]  + "," + textField.getText();
+                    String appendedText = "";
 
-                        String appendedText = "";
-
-                        for(String line : text){
-                            appendedText += line + "\n";
-                        }
-                        searchCriteriaArea.setText(appendedText);
-                    }else {
-                        textAreaLinesMap.put(checkBox.getText(), text.length-1);
-                        searchCriteriaArea.append(checkBox.getText() + ": " + textField.getText() + "\n");
+                    for(String line : text){
+                        appendedText += line + "\n";
                     }
-                    textField.setText("");
+                    searchCriteriaArea.setText(appendedText);
+                }else {
+                    textAreaLinesMap.put(checkBox.getText(), text.length-1);
+                    searchCriteriaArea.append(checkBox.getText() + ": " + textField.getText() + "\n");
                 }
+                textField.setText("");
             });
+
             horizontalParGroup.addComponent(checkBox).addComponent(textField);
             verticalSeqGroup.addComponent(checkBox).addComponent(textField);
         }
@@ -103,12 +94,7 @@ final public class SearchWindow {
         layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addGroup(verticalSeqGroup)
                 .addComponent(searchCriteriaArea));
-
-        frame.setLayout(layout);
-        frame.setSize(800,600);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        this.setLayout(layout);
     }
 
     /**
@@ -138,11 +124,8 @@ final public class SearchWindow {
         });
     }
 
-    private class ReadyAndDisplayImages extends SwingWorker{
-
-        @Override
-        protected Object doInBackground() throws Exception {
-            return null;
-        }
+    @Override
+    public GroupLayout getLayout() {
+        return layout;
     }
 }

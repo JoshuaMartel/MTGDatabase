@@ -3,9 +3,9 @@ package org.pheonix;
 import java.io.*;
 import java.util.Properties;
 
-public class ReadConfigFile {
+public class ConfigHelper {
     String configFileName;
-    public ReadConfigFile(String fileName){
+    public ConfigHelper(String fileName){
         configFileName = fileName;
     }
     public Properties readConfigFile(){
