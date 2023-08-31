@@ -1,7 +1,7 @@
 package org.pheonix.ui;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.pheonix.business.QueryHandler;
+import org.pheonix.business.BusinessLogic;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +15,7 @@ public class InsertCardWindow {
     GroupLayout layout;
     JComboBox tagsComboBox;
     JButton cancelButton, insertButton;
-    QueryHandler queryHandler;
+    BusinessLogic logic;
     Vector<String> tags;
 
     ImmutablePair<JLabel, JTextField> [] insertFields = new ImmutablePair[]{
@@ -29,18 +29,19 @@ public class InsertCardWindow {
             new ImmutablePair(new JLabel("Power/Toughness"), new JTextField("")),
             new ImmutablePair(new JLabel("Colour Identity"), new JTextField("")),
             new ImmutablePair(new JLabel("Tags"), new JTextField("")),
-            new ImmutablePair(new JLabel("Lore Text"), new JTextField(""))
+            new ImmutablePair(new JLabel("Lore Text"), new JTextField("")),
+            new ImmutablePair(new JLabel("Image Path"), new JTextField(""))
     };
 
-    public InsertCardWindow(QueryHandler newQueryHandler) {
+    public InsertCardWindow(BusinessLogic businessLogic, String uri) {
         frame = new JFrame();
         pane = frame.getContentPane();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         layout = new GroupLayout(pane);
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
-        queryHandler = newQueryHandler;
-        tags = queryHandler.getTags();
+        logic = businessLogic;
+        tags = logic.getTags();
 
         tagsComboBox = new JComboBox(tags);
 
@@ -50,6 +51,11 @@ public class InsertCardWindow {
         for(ImmutablePair<JLabel, JTextField> pair: insertFields) {
             JLabel label = pair.left;
             JTextField textField = pair.right;
+
+            if(label.getText().equalsIgnoreCase("Image Path")){
+                // Default image location
+                textField.setText(uri.replace("\"",""));
+            }
 
             textField .setSize(100,25);
 
@@ -73,8 +79,9 @@ public class InsertCardWindow {
         layout.setVerticalGroup(verticalSeqGroup);
 
         frame.setLayout(layout);
-        frame.pack();
         frame.setSize(new Dimension(800, 600));
+        frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 }
