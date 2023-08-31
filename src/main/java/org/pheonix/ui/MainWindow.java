@@ -5,6 +5,7 @@ import org.pheonix.ConfigStore;
 import org.pheonix.business.BusinessLogic;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,11 +40,16 @@ public class MainWindow {
          */
         init(businessLogic);
         createBottomLayout();
+        Dimension frameSize = new Dimension(1000,800);
+        int filterWidth = (int)(frameSize.width * 0.1);
 
-        leftFilterPane.setVisible(false);
-        innerTopSplitPane.setResizeWeight(0.5);
+        leftFilterPane.setVisible(true);
+        leftFilterPane.setPreferredSize(new Dimension(filterWidth, frameSize.height));
+        innerTopSplitPane.setResizeWeight(0.3);
         innerTopSplitPane.setLeftComponent(leftFilterPane);
-        innerTopSplitPane.setRightComponent(new JScrollPane(rightImagePane));
+        JScrollPane imageScrollPane = new JScrollPane(rightImagePane);
+        imageScrollPane.getVerticalScrollBar().setUnitIncrement(20);
+        innerTopSplitPane.setRightComponent(imageScrollPane);
 
         outerSplitPane.setResizeWeight(1.0);
         outerSplitPane.setBottomComponent(bottomPane);
@@ -55,7 +61,7 @@ public class MainWindow {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(outerSplitPane, BorderLayout.CENTER);
         frame.pack();
-        frame.setSize(new Dimension(800,600));
+        frame.setSize(frameSize);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
@@ -145,8 +151,11 @@ public class MainWindow {
             ImageIcon imageIcon = images.get(images.size() -1);
             JLabel labelImage = new JLabel(imageIcon);
             labelImage.setSize(imageWidth,imageHeight);
+            //labelImage.setMaximumSize(new Dimension(imageWidth,imageHeight));
+            labelImage.setBorder(new BevelBorder(BevelBorder.RAISED));
             labels.add(labelImage);
             rightImagePane.add(labelImage);
+            rightImagePane.setBorder(new BevelBorder(BevelBorder.RAISED));
             SwingUtilities.updateComponentTreeUI(frame);
         }
 

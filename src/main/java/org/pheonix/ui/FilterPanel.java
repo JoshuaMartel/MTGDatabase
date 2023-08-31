@@ -90,10 +90,10 @@ public class FilterPanel extends JPanel {
 
         layout.setHorizontalGroup(layout.createSequentialGroup()
                 .addGroup(horizontalParGroup)
-                .addComponent(searchCriteriaArea));
+                .addComponent(scrollPane));
         layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addGroup(verticalSeqGroup)
-                .addComponent(searchCriteriaArea));
+                .addComponent(scrollPane));
         this.setLayout(layout);
     }
 
