@@ -48,4 +48,7 @@ public class ImagePanel extends JPanel {
         imageLabels.get(name).setVisible(true);
     }
 
+    public Map<String, JLabel> getImageLabels() {
+        return imageLabels;
+    }
 }

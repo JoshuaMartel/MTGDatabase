@@ -15,6 +15,7 @@ import java.util.List;
 
 public class MainWindow {
     int imageWidth, imageHeight;
+    int currentImages, maxImages;
     BusinessLogic logicHandler;
     Properties config;
     JFrame frame;
@@ -74,20 +75,23 @@ public class MainWindow {
         config = businessLogic.getConfig();
         imageWidth = Integer.parseInt(config.getProperty(ConfigStore.IMAGE_WIDTH.getValue()));
         imageHeight = Integer.parseInt(config.getProperty(ConfigStore.IMAGE_HEIGHT.getValue()));
+        Dimension screenResolution = Toolkit.getDefaultToolkit().getScreenSize();
+
+        final int IMAGES_PER_ROW = screenResolution.width / imageWidth;
+        final int ROWS = 4;
+
+        currentImages = 0;
+        maxImages = IMAGES_PER_ROW * ROWS;
+        System.out.println("maxImages: " + maxImages);
 
         frame = new JFrame();
         labels = new Vector<>();
-
         bottomPane = new JPanel();
         bottomPane.setMinimumSize(new Dimension(320,70));
         bottomPane.setPreferredSize(new Dimension(320,70));
-        //leftFilterPane = new JPanel(new FlowLayout());
         leftFilterPane = new FilterPanel(frame);
-        Dimension screenResolution = Toolkit.getDefaultToolkit().getScreenSize();
-        rightImagePane = new ImagePanel(frame ,config,new GridLayout(0, screenResolution.width / imageWidth, 10,10));
-
+        rightImagePane = new ImagePanel(frame ,config,new GridLayout(0, IMAGES_PER_ROW, 10,10));
         outerSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-
         innerTopSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         // tabbedPane = new JTabbedPane();
     }
@@ -140,10 +144,18 @@ public class MainWindow {
         protected Vector<ImageIcon> doInBackground() throws Exception {
             Vector<File> files = logicHandler.loadImageFiles();
             Vector<ImageIcon> images = new Vector<>();
+            Map<String, JLabel> imageMap = rightImagePane.getImageLabels();
+
             for(File file : files) {
-                ImageIcon image = logicHandler.loadAndConvertImage(file.getPath());
-                images.add(image);
-                publish(new ImmutablePair<>(file.getName(), image));
+                if(!imageMap.containsKey(file.getName())){
+                    ImageIcon image = logicHandler.loadAndConvertImage(file.getPath());
+                    images.add(image);
+                    publish(new ImmutablePair<>(file.getName(), image));
+                    currentImages++;
+                }
+                if(currentImages >= maxImages){
+                    break;
+                }
             }
             System.out.println("Number of images: " + images.size());
             return images;
