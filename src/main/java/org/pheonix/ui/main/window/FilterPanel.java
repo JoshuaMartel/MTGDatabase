@@ -1,4 +1,4 @@
-package org.pheonix.ui;
+package org.pheonix.ui.main.window;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 

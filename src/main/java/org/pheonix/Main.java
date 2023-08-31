@@ -6,7 +6,7 @@ import org.pheonix.business.BusinessLogic;
 import org.pheonix.database.QueryHandler;
 import org.pheonix.database.DatabaseConnector;
 import org.pheonix.exception.JDBCExceptionHandler;
-import org.pheonix.ui.MainWindow;
+import org.pheonix.ui.main.window.MainWindow;
 
 import java.sql.SQLException;
 import java.util.Properties;

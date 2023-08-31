@@ -1,14 +1,14 @@
-package org.pheonix.ui;
+package org.pheonix.ui.main.window;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.pheonix.ConfigStore;
 import org.pheonix.business.BusinessLogic;
+import org.pheonix.ui.InsertCardWindow;
+import org.pheonix.ui.SearchWindow;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -21,7 +21,9 @@ public class MainWindow {
     GroupLayout bottomLayout;
     JTabbedPane tabbedPane;
     JSplitPane outerSplitPane, innerTopSplitPane;
-    JPanel bottomPane, leftFilterPane, rightImagePane;
+    JScrollPane imageScrollPane;
+    JPanel bottomPane, leftFilterPane;
+    ImagePanel rightImagePane;
     JButton exit, search, insertCard, filter;
     Vector<ImageIcon> imageIcons;
     Vector<JLabel> labels;
@@ -47,8 +49,9 @@ public class MainWindow {
         leftFilterPane.setPreferredSize(new Dimension(filterWidth, frameSize.height));
         innerTopSplitPane.setResizeWeight(0.3);
         innerTopSplitPane.setLeftComponent(leftFilterPane);
-        JScrollPane imageScrollPane = new JScrollPane(rightImagePane);
+        imageScrollPane = new JScrollPane(rightImagePane);
         imageScrollPane.getVerticalScrollBar().setUnitIncrement(20);
+        imageScrollPane.getHorizontalScrollBar().setUnitIncrement(20);
         innerTopSplitPane.setRightComponent(imageScrollPane);
 
         outerSplitPane.setResizeWeight(1.0);
@@ -81,7 +84,7 @@ public class MainWindow {
         //leftFilterPane = new JPanel(new FlowLayout());
         leftFilterPane = new FilterPanel(frame);
         Dimension screenResolution = Toolkit.getDefaultToolkit().getScreenSize();
-        rightImagePane = new JPanel(new GridLayout(0, screenResolution.width / imageWidth, 10,10));
+        rightImagePane = new ImagePanel(frame ,config,new GridLayout(0, screenResolution.width / imageWidth, 10,10));
 
         outerSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
@@ -132,7 +135,7 @@ public class MainWindow {
         return buttons;
     }
 
-    public class ImageLoader extends SwingWorker<Vector<ImageIcon>, ImageIcon> {
+    public class ImageLoader extends SwingWorker<Vector<ImageIcon>, ImmutablePair<String, ImageIcon>> {
         @Override
         protected Vector<ImageIcon> doInBackground() throws Exception {
             Vector<File> files = logicHandler.loadImageFiles();
@@ -140,22 +143,24 @@ public class MainWindow {
             for(File file : files) {
                 ImageIcon image = logicHandler.loadAndConvertImage(file.getPath());
                 images.add(image);
-                publish(image);
+                publish(new ImmutablePair<>(file.getName(), image));
             }
             System.out.println("Number of images: " + images.size());
             return images;
         }
 
         @Override
-        protected void process(List<ImageIcon> images) {
-            ImageIcon imageIcon = images.get(images.size() -1);
-            JLabel labelImage = new JLabel(imageIcon);
+        protected void process(List<ImmutablePair<String, ImageIcon>> images) {
+            ImageIcon imageIcon = images.get(images.size() -1).getRight();
+            String name = images.get(images.size() - 1).getLeft();
+            rightImagePane.addLabel(name, imageIcon);
+            /*JLabel labelImage = new JLabel(imageIcon);
             labelImage.setSize(imageWidth,imageHeight);
             //labelImage.setMaximumSize(new Dimension(imageWidth,imageHeight));
             labelImage.setBorder(new BevelBorder(BevelBorder.RAISED));
             labels.add(labelImage);
-            rightImagePane.add(labelImage);
-            rightImagePane.setBorder(new BevelBorder(BevelBorder.RAISED));
+            rightImagePane.add(labelImage);*/
+
             SwingUtilities.updateComponentTreeUI(frame);
         }
 
