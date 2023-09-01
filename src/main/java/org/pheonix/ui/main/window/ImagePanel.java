@@ -26,11 +26,21 @@ public class ImagePanel extends JPanel {
         imageLabels = new HashMap<>();
     }
 
-    public void addLabel(String imageName, ImageIcon image) {
-        JLabel label = new JLabel(image);
+    public void addLabel(String imageName, ImageIcon image, int owned, int available) {
+        JLabel label = new JLabel() {
+          protected void paintComponent(Graphics graphics) {
+              super.paintComponent(graphics);
+              graphics.drawImage(image.getImage(), 0,0, null);
+              graphics.drawString(
+                      "Owned: " + owned + ", available: " + available,
+                      10,
+                      imageHeight + 30 - 10);
+          }
+        };
 
-        label.setSize(imageWidth,imageHeight);
-
+        label.setMinimumSize(new Dimension(imageWidth,imageHeight + 30));
+        label.setPreferredSize(new Dimension(imageWidth,imageHeight + 30));
+        label.setMaximumSize(new Dimension(imageWidth,imageHeight + 30));
         label.setBorder(new BevelBorder(BevelBorder.RAISED));
         imageLabels.put(imageName, label);
 

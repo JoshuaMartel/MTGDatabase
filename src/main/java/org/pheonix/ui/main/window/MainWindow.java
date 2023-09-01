@@ -3,14 +3,12 @@ package org.pheonix.ui.main.window;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.pheonix.ConfigStore;
 import org.pheonix.business.BusinessLogic;
+import org.pheonix.business.ImageLoader;
 import org.pheonix.ui.InsertCardWindow;
 import org.pheonix.ui.SearchWindow;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.File;
@@ -20,6 +18,7 @@ import java.util.List;
 public class MainWindow {
     int imageWidth, imageHeight;
     int currentImages, maxImages;
+    ImageLoader imageLoader;
     BusinessLogic logicHandler;
     Properties config;
     JFrame frame;
@@ -33,7 +32,7 @@ public class MainWindow {
     Vector<ImageIcon> imageIcons;
     Vector<JLabel> labels;
 
-    public MainWindow(BusinessLogic businessLogic){
+    public MainWindow(ImageLoader loader, BusinessLogic logic){
         /**
          * Note: elements on the same line are split between two sides.
          * The pane layering from outside to inside is as follows:
@@ -45,7 +44,7 @@ public class MainWindow {
          * *innerTopSplitPane*
          * -> leftFilterPane, rightImagePane
          */
-        init(businessLogic);
+        init(loader, logic);
         createBottomLayout();
         Dimension frameSize = new Dimension(1000,800);
         int filterWidth = (int)(frameSize.width * 0.1);
@@ -64,8 +63,8 @@ public class MainWindow {
         outerSplitPane.setBottomComponent(bottomPane);
         outerSplitPane.setTopComponent(innerTopSplitPane);
 
-        ImageLoader imageLoader = new ImageLoader();
-        imageLoader.execute();
+        ImageLoaderWorker imageLoaderWorker = new ImageLoaderWorker();
+        imageLoaderWorker.execute();
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(outerSplitPane, BorderLayout.CENTER);
@@ -75,9 +74,10 @@ public class MainWindow {
         frame.setVisible(true);
     }
 
-    private void init(BusinessLogic businessLogic){
-        logicHandler = businessLogic;
-        config = businessLogic.getConfig();
+    private void init(ImageLoader loader, BusinessLogic logic){
+        logicHandler = logic;
+        imageLoader = loader;
+        config = loader.getConfig();
         imageWidth = Integer.parseInt(config.getProperty(ConfigStore.IMAGE_WIDTH.getValue()));
         imageHeight = Integer.parseInt(config.getProperty(ConfigStore.IMAGE_HEIGHT.getValue()));
         Dimension screenResolution = Toolkit.getDefaultToolkit().getScreenSize();
@@ -144,16 +144,16 @@ public class MainWindow {
         return buttons;
     }
 
-    public class ImageLoader extends SwingWorker<Vector<ImageIcon>, ImmutablePair<String, ImageIcon>> {
+    public class ImageLoaderWorker extends SwingWorker<Vector<ImageIcon>, ImmutablePair<String, ImageIcon>> {
         @Override
         protected Vector<ImageIcon> doInBackground() throws Exception {
-            Vector<File> files = logicHandler.loadImageFiles();
+            Vector<File> files = imageLoader.loadImageFiles();
             Vector<ImageIcon> images = new Vector<>();
             Map<String, JLabel> imageMap = rightImagePane.getImageLabels();
 
             for(File file : files) {
                 if(!imageMap.containsKey(file.getName())){
-                    ImageIcon image = logicHandler.loadAndConvertImage(file.getPath());
+                    ImageIcon image = imageLoader.loadAndConvertImage(file.getPath());
                     images.add(image);
                     publish(new ImmutablePair<>(file.getName(), image));
                     currentImages++;
@@ -170,14 +170,7 @@ public class MainWindow {
         protected void process(List<ImmutablePair<String, ImageIcon>> images) {
             ImageIcon imageIcon = images.get(images.size() -1).getRight();
             String name = images.get(images.size() - 1).getLeft();
-            rightImagePane.addLabel(name, imageIcon);
-            /*JLabel labelImage = new JLabel(imageIcon);
-            labelImage.setSize(imageWidth,imageHeight);
-            //labelImage.setMaximumSize(new Dimension(imageWidth,imageHeight));
-            labelImage.setBorder(new BevelBorder(BevelBorder.RAISED));
-            labels.add(labelImage);
-            rightImagePane.add(labelImage);*/
-
+            rightImagePane.addLabel(name, imageIcon, 1, 1);
             SwingUtilities.updateComponentTreeUI(frame);
         }
 
@@ -208,7 +201,6 @@ public class MainWindow {
                 return;
             }
             int type = e.getAdjustmentType();
-            System.out.println(type);
             switch(type) {
                 case AdjustmentEvent.BLOCK_DECREMENT:
                 case AdjustmentEvent.TRACK:
@@ -226,7 +218,7 @@ public class MainWindow {
                     if(fraction > THRESHOLD && currentImages >= maxImages){
                         //System.out.println("loading more images...");
                         maxImages *= 2;
-                        ImageLoader loader = new ImageLoader();
+                        ImageLoaderWorker loader = new ImageLoaderWorker();
                         loader.execute();
                     }
                     break;

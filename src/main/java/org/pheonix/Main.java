@@ -3,6 +3,7 @@ package org.pheonix;
 
 import org.opencv.core.Core;
 import org.pheonix.business.BusinessLogic;
+import org.pheonix.business.ImageLoader;
 import org.pheonix.database.QueryHandler;
 import org.pheonix.database.DatabaseConnector;
 import org.pheonix.exception.JDBCExceptionHandler;
@@ -28,9 +29,10 @@ public class Main {
         try{
             queryHandler = new QueryHandler(dsCon.getDataSource(config));
 
+            ImageLoader loader = new ImageLoader(config);
             BusinessLogic logic = new BusinessLogic(queryHandler, config);
             //new InsertCardWindow(logic,config.getProperty("imageFolderUri"));
-            new MainWindow(logic);
+            new MainWindow(loader, logic);
         }catch (SQLException e){
             exceptionHandler.printSQLException(e);
         }
