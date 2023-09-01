@@ -6,6 +6,7 @@ import org.pheonix.business.BusinessLogic;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
+import java.awt.event.AdjustmentListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;

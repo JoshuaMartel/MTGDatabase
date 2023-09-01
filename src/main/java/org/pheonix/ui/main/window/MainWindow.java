@@ -9,6 +9,10 @@ import org.pheonix.ui.SearchWindow;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -23,8 +27,8 @@ public class MainWindow {
     JTabbedPane tabbedPane;
     JSplitPane outerSplitPane, innerTopSplitPane;
     JScrollPane imageScrollPane;
-    JPanel bottomPane, leftFilterPane;
     ImagePanel rightImagePane;
+    JPanel bottomPane, leftFilterPane;
     JButton exit, search, insertCard, filter;
     Vector<ImageIcon> imageIcons;
     Vector<JLabel> labels;
@@ -53,6 +57,7 @@ public class MainWindow {
         imageScrollPane = new JScrollPane(rightImagePane);
         imageScrollPane.getVerticalScrollBar().setUnitIncrement(20);
         imageScrollPane.getHorizontalScrollBar().setUnitIncrement(20);
+        imageScrollPane.getVerticalScrollBar().addAdjustmentListener(new ImageScrollbarListener());
         innerTopSplitPane.setRightComponent(imageScrollPane);
 
         outerSplitPane.setResizeWeight(1.0);
@@ -190,6 +195,41 @@ public class MainWindow {
                     why = e.getMessage();
                 }
                 System.err.println("Error retrieving images: " + why);
+            }
+        }
+    }
+
+    private class ImageScrollbarListener implements AdjustmentListener {
+        private static final float THRESHOLD = 0.9f;
+        @Override
+        public void adjustmentValueChanged(AdjustmentEvent e) {
+            //System.out.println("AdjustmentEvent Heard.");
+            if(e.getValueIsAdjusting()){
+                return;
+            }
+            int type = e.getAdjustmentType();
+            System.out.println(type);
+            switch(type) {
+                case AdjustmentEvent.BLOCK_DECREMENT:
+                case AdjustmentEvent.TRACK:
+                case AdjustmentEvent.UNIT_DECREMENT:
+                    //System.out.println("Heard decrement.");
+                    int max = imageScrollPane.getVerticalScrollBar().getMaximum() - imageScrollPane.getVerticalScrollBar().getVisibleAmount();
+                    int current = imageScrollPane.getVerticalScrollBar().getValue();
+                    float fraction = (float) current / (float) max;
+                    // If scroll bar is at the bottom and images have finished loading
+                    /*System.out.println("current, max, currentImages, maxImages: " +
+                            current + ", " +
+                            max + ", " +
+                            currentImages + ", " +
+                            maxImages);*/
+                    if(fraction > THRESHOLD && currentImages >= maxImages){
+                        //System.out.println("loading more images...");
+                        maxImages *= 2;
+                        ImageLoader loader = new ImageLoader();
+                        loader.execute();
+                    }
+                    break;
             }
         }
     }
